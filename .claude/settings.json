@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat .clangd 2>/dev/null; echo ---; ls -la; echo ---; ls -la components/Middlewares; echo ---; ls ..)",
+      "Read(//d/all_daima/esp32_all/test1/**)",
+      "Bash(ls build/ 2>/dev/null | head -20; echo ---; ls build/compile_commands.json 2>/dev/null || echo \"no compile_commands.json in led_01/build\"; echo ---; ls ../test1/build/compile_commands.json 2>/dev/null || echo \"no compile_commands.json in ../test1/build\")",
+      "Read(//d/all_daima/esp32_all/test1/test1/build/**)",
+      "Read(//c/Users/27996/.claude/projects/d--all-daima-esp32-all-test1-led-01/memory/**)",
+      "Bash(grep -m3 -o \"d:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\all_daima[^\\\\\" ]*main\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\main.c\" build/compile_commands.json)",
+      "Bash(grep -o -F \"all_daima[^\\\\\"\\\\\\\\\\\\\\\\]*main[^\\\\\"\\\\\\\\\\\\\\\\]*main.c\" build/compile_commands.json)",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/**)",
+      "Bash(grep -iE \"^driver$|^esp_driver\")",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/driver/**)",
+      "Bash(\"D:/Espressif/tools/cmake/3.30.2/bin/cmake.exe\" --build d:/all_daima/esp32_all/test1/led_01/build)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(\"C:/Espressif/tools/cmake/3.30.2/bin/cmake.exe\" --build d:/all_daima/esp32_all/test1/led_01/build)",
+      "Bash(grep -o '\"BSP\"[^,}]*\\\\|\"bsp\"[^,}]*' build/project_description.json | head -5; echo ===; ls D:/eeeooo/esp32/v5.5.5/esp-idf/components/esp_driver_gpio/include/driver/ 2>/dev/null | head -5; echo ===; grep -i \"strapping\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/soc/esp32c5/include/soc/soc_caps.h 2>/dev/null | head -5 ; grep -ri \"GPIO_NUM_1\\\\b\\\\|GPIO_NUM_2\\\\b\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/soc/esp32c5/include/soc/gpio_num.h 2>/dev/null | head -4)",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/esp_driver_gpio/include/driver/**)",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/soc/esp32c5/include/soc/**)",
+      "Bash(grep -i \"GPIO_PIN_COUNT\\\\|GPIO_NUM_MAX\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/soc/esp32c5/include/soc/soc_caps.h | head -3)",
+      "Bash(grep -n \"#include\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/esp_driver_gpio/include/driver/gpio.h | head -10; echo ===; grep -rn \"gpio_config_t\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/hal/include/hal/gpio_types.h | head -4)",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/hal/include/hal/**)",
+      "Bash(grep -rn \"gpio_config_t\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/esp_driver_gpio/include/ D:/eeeooo/esp32/v5.5.5/esp-idf/components/hal/include/ 2>/dev/null | grep -i \"typedef\\\\|struct.*{\" | head -5; echo ===; grep -rn \"} gpio_config_t\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/ 2>/dev/null | head -3)",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/esp_driver_gpio/include/**)",
+      "Bash(ls -la \"D:/eeeooo/esp32/v5.5.5/esp-idf/components/esp_driver_gpio/include/driver/gpio.h\"; echo ===; grep -o \"led.c\" build/compile_commands.json | head -1; echo ---; grep -o \"\\\\-I[^\\\\\"]*esp_driver_gpio[^\\\\\"]*\" build/compile_commands.json | sort -u | head -5)",
+      "Bash(\"C:/Espressif/tools/riscv32-esp-elf/esp-14.2.0_20260121/riscv32-esp-elf/bin/riscv32-esp-elf-addr2line.exe\" -f -e build/test1.elf 0x420005c5)",
+      "Bash(sed -n '600,625p' D:/eeeooo/esp32/v5.5.5/esp-idf/components/esp_system/port/cpu_start.c)",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/esp_system/port/**)",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/log/include/**)",
+      "Bash(\"C:/Espressif/tools/riscv32-esp-elf/esp-14.2.0_20260121/riscv32-esp-elf/bin/riscv32-esp-elf-nm.exe\" build/test1.elf)",
+      "Bash(echo \"---nm exit:$?\")"
+    ]
+  }
+}
