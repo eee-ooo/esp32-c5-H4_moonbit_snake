@@ -19,8 +19,13 @@ void led_init(void)
     gpio_set_level(LED_GPIO_2, 0);
 }
 
+void led_set_pin(int pin, bool state)
+{
+    gpio_set_level(pin, state ? 1 : 0);
+}
+
 void led_set(bool state)
 {
-    gpio_set_level(LED_GPIO_1, state ? 1 : 0);
-    gpio_set_level(LED_GPIO_2, state ? 1 : 0);
+    led_set_pin(LED_GPIO_1, state);
+    led_set_pin(LED_GPIO_2, state);
 }
