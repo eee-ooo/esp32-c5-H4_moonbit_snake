@@ -28,7 +28,16 @@
       "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/esp_system/port/**)",
       "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/log/include/**)",
       "Bash(\"C:/Espressif/tools/riscv32-esp-elf/esp-14.2.0_20260121/riscv32-esp-elf/bin/riscv32-esp-elf-nm.exe\" build/test1.elf)",
-      "Bash(echo \"---nm exit:$?\")"
+      "Bash(echo \"---nm exit:$?\")",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/esp_driver_gpio/**)",
+      "Bash(tasklist)",
+      "Bash(taskkill //F //PID 163576)",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/console/include/**)",
+      "Bash(grep -n \"esp_console_new_repl\\\\|esp_console_dev_\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/console/esp_console.h | head -12)",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/console/**)",
+      "Bash(grep -n \"#if\\\\|#ifdef\\\\|#endif\\\\|#ifndef\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/console/esp_console.h | head -25)",
+      "Bash(ls D:/eeeooo/esp32/v5.5.5/esp-idf/components/nvs_flash/include/ | head -8)",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/nvs_flash/include/**)"
     ]
   }
 }
