@@ -4,6 +4,9 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "nvs.h"
+#include "esp_wifi.h"
+#include "esp_event.h"
+#include "esp_netif.h"
 #include "led.h"
 
 static const char *TAG = "cli";
@@ -63,6 +66,50 @@ static int cmd_restart(int argc, char **argv)
     return 0;
 }
 
+/* ============ WiFi 扫描雷达(懒初始化:第一次扫描才启动 WIFI) ============ */
+
+static bool wifi_ready = false;
+
+static int cmd_scan(int argc, char **argv)
+{
+    (void)argc;
+    (void)argv;
+
+    if (!wifi_ready) {
+        ESP_LOGI(TAG, "init wifi engine...");
+        ESP_ERROR_CHECK(esp_netif_init());
+        ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+        wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+        ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+        ESP_ERROR_CHECK(esp_wifi_start());
+        wifi_ready = true;
+    }
+
+    /* 扫描:block=true 表示等扫描完成再返回 */
+    wifi_scan_config_t sconf = {
+        .ssid = NULL, .bssid = NULL, .channel = 0, .scan_type = WIFI_SCAN_TYPE_ACTIVE,
+    };
+    if (esp_wifi_scan_start(&sconf, true) != ESP_OK) {
+        printf("scan failed\n");
+        return -1;
+    }
+
+    uint16_t count = 0;
+    esp_wifi_scan_get_ap_num(&count);
+    printf("found %d APs nearby:\n", count);
+
+    wifi_ap_record_t *recs = calloc(count ? count : 1, sizeof(wifi_ap_record_t));
+    esp_wifi_scan_get_ap_records(&count, recs);
+    for (uint16_t i = 0; i < count; i++) {
+        printf("  [%2d] RSSI %4d dBm   %-32s\n",
+               i, recs[i].rssi, (const char *)recs[i].ssid);
+    }
+    free(recs);
+    return 0;
+}
+
 /* ============ 启动 ============ */
 
 void cli_init(void)
@@ -99,6 +146,7 @@ void cli_init(void)
         { .command = "off",     .help = "IO1/IO2 -> LOW",     .func = cmd_off },
         { .command = "hello",   .help = "say hello",          .func = cmd_hello },
         { .command = "restart", .help = "reboot the device",  .func = cmd_restart },
+        { .command = "scan",    .help = "wifi APs near by",    .func = cmd_scan },
     };
     for (int i = 0; i < sizeof(cmd_tab) / sizeof(cmd_tab[0]); i++) {
         ESP_ERROR_CHECK(esp_console_cmd_register(&cmd_tab[i]));
