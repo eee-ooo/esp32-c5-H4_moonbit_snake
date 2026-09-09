@@ -37,7 +37,17 @@
       "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/console/**)",
       "Bash(grep -n \"#if\\\\|#ifdef\\\\|#endif\\\\|#ifndef\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/console/esp_console.h | head -25)",
       "Bash(ls D:/eeeooo/esp32/v5.5.5/esp-idf/components/nvs_flash/include/ | head -8)",
-      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/nvs_flash/include/**)"
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/nvs_flash/include/**)",
+      "Bash(grep -n \"redir\\\\|timeout_ms\\\\|url;\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/esp_http_client/include/esp_http_client.h | head -10)",
+      "Read(//d/eeeooo/esp32/v5.5.5/esp-idf/components/esp_http_client/include/**)",
+      "Bash(grep -E \"SOC_LCD|SOC_CAM\" D:/eeeooo/esp32/v5.5.5/esp-idf/components/soc/esp32c5/include/soc/soc_caps.h | head -8; echo ===; ls -d D:/eeeooo/esp32/v5.5.5/esp-idf/components/esp_driver_lcd 2>/dev/null || echo \"no esp_driver_lcd\")",
+      "Bash(ls \"D:/all_daima/esp32_all/moonbit/moonbit-wasm4-esp32-main\" 2>/dev/null | head -25; echo ===; head -12 \"D:/all_daima/esp32_all/moonbit/moonbit-wasm4-esp32-main/README.md\" 2>/dev/null)",
+      "Read(//d/all_daima/esp32_all/moonbit/moonbit-wasm4-esp32-main/**)",
+      "WebFetch(domain:www.moonbitlang.cn)",
+      "WebFetch(domain:moonbitlang.cn)"
+    ],
+    "additionalDirectories": [
+      "D:\\all_daima\\esp32_all\\test1"
     ]
   }
 }

@@ -18,6 +18,8 @@
 | 8 | 万用表读 0.4V/0.1V "假信号" | 引脚未配置(悬空)时读到的漂浮电压,不是逻辑值 | 先看 Monitor 日志确认程序在跑,再谈电压 | ✅ |
 | 9 | `bitq`/`dtmcs`/`polling failed` 刷屏,IDE 设置卡死 | 残留 `openocd.exe` 僵尸进程独占 USB-JTAG 口,新连接掐断通信 | **先杀进程(`taskkill /F /IM openocd.exe`),再拔插 USB 线**;调试器一次只开一个 | ✅ |
 | 10 | `Failed to resolve component 'esp_console'` | 组件名(`console`)≠ 头文件前缀(`esp_console`)≠API 前缀(`esp_console_*`);REQUIRES 只认组件名 | `REQUIRES console`(调试:看 `components/console/` 目录名) | ✅ |
+| 11 | `scan` 报 `0xffffffff (ESP_FAIL)`:`STA is connecting, scan are not allowed!` | 事件回调在 `STA_START` 里**自动** connect,抢在扫描前把驱动带进"连接中"状态 | 回调要"意图门控":定义 `s_join_requested` 标志,只有 join 下令过才允许自动重连;START 事件只登记不动作 | ✅ |
+| 12 | 能连上 AP(`connected to AP`)但**永远无 GOT_IP**(等 40s、换频段都一样) | 漏了 `esp_netif_create_default_wifi_sta()`:没有 STA netif 实例 = 没有 DHCP 客户端 = 没人领 IP。**分层诊断法**:scan 正常+connected 正常 = 射频层无恙 → 问题必然在 IP 层 | WiFi 四件套必须齐:`esp_netif_init() → esp_event_loop_create_default() → esp_netif_create_default_wifi_sta() → esp_wifi_init()` | ✅ |
 
 ## 概念坑(推图时留意)
 

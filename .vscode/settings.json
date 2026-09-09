@@ -32,6 +32,6 @@
     "--query-driver=**",
     "--compile-commands-dir=${workspaceFolder}/build"
   ],
-  "idf.flashType": "JTAG",
+  "idf.flashType": "UART",
   "idf.portWin": "COM6"
 }

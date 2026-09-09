@@ -4,10 +4,9 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "nvs.h"
-#include "esp_wifi.h"
-#include "esp_event.h"
-#include "esp_netif.h"
 #include "led.h"
+#include "wifi_app.h"
+#include "http_app.h"
 
 static const char *TAG = "cli";
 uint16_t test1=0;
@@ -25,7 +24,7 @@ static void led_state_save(bool on)
     nvs_close(h);
 }
 
-/* ============ 命令 ============ */
+/* ============ 命令(人机适配层:解析参数 + 调用业务组件) ============ */
 
 static int cmd_on(int argc, char **argv)
 {
@@ -66,47 +65,56 @@ static int cmd_restart(int argc, char **argv)
     return 0;
 }
 
-/* ============ WiFi 扫描雷达(懒初始化:第一次扫描才启动 WIFI) ============ */
-
-static bool wifi_ready = false;
-
 static int cmd_scan(int argc, char **argv)
 {
     (void)argc;
     (void)argv;
+    return wifi_app_scan();
+}
 
-    if (!wifi_ready) {
-        ESP_LOGI(TAG, "init wifi engine...");
-        ESP_ERROR_CHECK(esp_netif_init());
-        ESP_ERROR_CHECK(esp_event_loop_create_default());
-
-        wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-        ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-        ESP_ERROR_CHECK(esp_wifi_start());
-        wifi_ready = true;
-    }
-
-    /* 扫描:block=true 表示等扫描完成再返回 */
-    wifi_scan_config_t sconf = {
-        .ssid = NULL, .bssid = NULL, .channel = 0, .scan_type = WIFI_SCAN_TYPE_ACTIVE,
-    };
-    if (esp_wifi_scan_start(&sconf, true) != ESP_OK) {
-        printf("scan failed\n");
+static int cmd_join(int argc, char **argv)
+{
+    if (argc < 3) {
+        printf("usage: join <ssid> <password>\n");
         return -1;
     }
+    wifi_app_join(argv[1], argv[2]);
+    return 0;
+}
 
-    uint16_t count = 0;
-    esp_wifi_scan_get_ap_num(&count);
-    printf("found %d APs nearby:\n", count);
-
-    wifi_ap_record_t *recs = calloc(count ? count : 1, sizeof(wifi_ap_record_t));
-    esp_wifi_scan_get_ap_records(&count, recs);
-    for (uint16_t i = 0; i < count; i++) {
-        printf("  [%2d] RSSI %4d dBm   %-32s\n",
-               i, recs[i].rssi, (const char *)recs[i].ssid);
+static int cmd_fetch(int argc, char **argv)
+{
+    if (argc < 2) {
+        printf("usage: fetch <url>\n");
+        return -1;
     }
-    free(recs);
+    static char body[512];
+    int n = http_app_get(argv[1], body, sizeof(body));
+    if (n <= 0) {
+        printf("抓取失败\n");
+        return -1;
+    }
+    printf("--- 拿回 %d 字节 ---\n%s\n--- 结束 ---\n", n, body);
+    return 0;
+}
+
+static int cmd_time(int argc, char **argv)
+{
+    (void)argc;
+    (void)argv;
+    static char body[512];
+    int n = http_app_get("http://worldtimeapi.org/api/ip", body, sizeof(body));
+    if (n <= 0) {
+        printf("时间获取失败(检查网络/连接)\n");
+        return -1;
+    }
+    /* 轻量"抓关键词":JSON 里找 "datetime" 字段的值 */
+    const char *p = strstr(body, "\"datetime\"");
+    if (p) {
+        printf("世界时间: %s\n", p + 12);   /* 跳过 "datetime": 这 11 个字符 */
+    } else {
+        printf("%s\n", body);               /* 没找到就原样吐出来 */
+    }
     return 0;
 }
 
@@ -146,7 +154,10 @@ void cli_init(void)
         { .command = "off",     .help = "IO1/IO2 -> LOW",     .func = cmd_off },
         { .command = "hello",   .help = "say hello",          .func = cmd_hello },
         { .command = "restart", .help = "reboot the device",  .func = cmd_restart },
-        { .command = "scan",    .help = "wifi APs near by",    .func = cmd_scan },
+        { .command = "scan",    .help = "wifi APs near by",   .func = cmd_scan },
+        { .command = "join",    .help = "join <ssid> <password>", .func = cmd_join },
+        { .command = "fetch",   .help = "fetch <url> (http get)", .func = cmd_fetch },
+        { .command = "time",    .help = "world time from internet", .func = cmd_time },
     };
     for (int i = 0; i < sizeof(cmd_tab) / sizeof(cmd_tab[0]); i++) {
         ESP_ERROR_CHECK(esp_console_cmd_register(&cmd_tab[i]));
