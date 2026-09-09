@@ -8,6 +8,7 @@
 #include "lcd.h"
 #include "wifi_app.h"
 #include "http_app.h"
+#include "game_app.h"
 #include <stdlib.h>
 
 static const char *TAG = "cli";
@@ -159,6 +160,19 @@ static int cmd_lcd(int argc, char **argv)
     return 0;
 }
 
+static int cmd_game(int argc, char **argv)
+{
+    (void)argc;
+    (void)argv;
+    if (!lcd_init()) {          /* 先确保屏就位(幂等,已初始化则直接通过) */
+        printf("LCD 未就绪\n");
+        return -1;
+    }
+    game_app_start();           /* 游戏任务接管;屏幕看效果,按键阶段 2 */
+    printf("wasm4 启动中(屏幕看效果,按键阶段 2)\n");
+    return 0;
+}
+
 static int cmd_time(int argc, char **argv)
 {
     (void)argc;
@@ -220,6 +234,7 @@ void cli_init(void)
         { .command = "fetch",   .help = "fetch <url> (http get)", .func = cmd_fetch },
         { .command = "time",    .help = "world time from internet", .func = cmd_time },
         { .command = "lcd",     .help = "show 160x160 gradient on LCD", .func = cmd_lcd },
+        { .command = "game",    .help = "boot wasm4 cart (snake)",       .func = cmd_game },
     };
     for (int i = 0; i < sizeof(cmd_tab) / sizeof(cmd_tab[0]); i++) {
         ESP_ERROR_CHECK(esp_console_cmd_register(&cmd_tab[i]));

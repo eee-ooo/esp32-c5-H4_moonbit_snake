@@ -1,6 +1,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "esp_system.h"
 #include "led.h"
 #include "cli.h"
 
@@ -8,6 +9,7 @@ static const char *TAG = "main";
 extern uint16_t test1;
 void app_main(void)
 {
+    printf("reset reason=%d\n", (int)esp_reset_reason());
     led_init();
     ESP_LOGI(TAG, "app start: BSP(LED) + CLI(console)");
 

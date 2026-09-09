@@ -34,6 +34,7 @@
 | C7 | REPL 也是一个任务 | `esp_console_start_repl()` 内部自建任务,不停机 |
 | C8 | 组件名不能与系统组件撞名 | 自定义 CLI 组件不能叫 `console`(系统已有),这里用 `cli` |
 | C10 | USB-SJ 虚拟串口的 DTR/RTS = 隐形"复位+下载模式"开关 | 普通串口助手打开/断开时会乱拉 DTR/RTS,把芯片按进 ROM 下载模式 → 程序没跑 → 引脚浮空;微软 Serial Monitor 不碰它们 → 正常。解法:助手配置里**取消勾选 DTR/RTS**;浮空时拔插 Type-C 或重连监视器即"复活" |
+| C11 | menuconfig 被"恢复默认"→ 一次性 4 杀:分区表变 1M Single/Flash 变 2MB/主控制台回 UART/SPIRAM 复活 | 任何一次 menuconfig 保存后**必查 4 项**:① Console=USB 串口 ② 分区=Custom(partitions.csv) ③ Flash=4MB ④ SPIRAM=关 |
 | C9 | 控制台"主/副"分家:输入只走主,UART 未接线则 REPL 是聋子 | MZ56:主=UART0(GPIO11/12 排针孔,裸板没接),副=USB-SJ(COM6 只镜像输出);日志看得见、命令打不进 → 主控制台必须切成 USB-SJ(menuconfig:Console → USB Serial/JTAG),一切换,`esp_console_new_repl_usb_serial_jtag` API 也被开关放行(该 API 有 `#if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG` 守卫) |
 
 ## 待补(推图完成后)

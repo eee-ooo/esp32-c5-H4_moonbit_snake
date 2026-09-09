@@ -22,6 +22,7 @@ static const char *TAG = "lcd";
 #define LCD_BL_INVERT  0
 
 static esp_lcd_panel_handle_t s_panel = NULL;
+static bool s_lcd_ready = false;   /* 幂等守卫:重复初始化直接返回 */
 
 static void lcd_backlight(bool on)
 {
@@ -35,6 +36,9 @@ static void lcd_backlight(bool on)
 
 bool lcd_init(void)
 {
+    if (s_lcd_ready) {
+        return true;   /* 已经初始化过,直接说成功 */
+    }
     /* 1. SPI 总线 —— 用回"已验证能跑"的配置(0=不配 DMA、50KB 预算) */
     spi_bus_config_t buscfg = {
         .mosi_io_num = LCD_MOSI_GPIO,
@@ -55,7 +59,10 @@ bool lcd_init(void)
         .pclk_hz = 80 * 1000 * 1000,
         .lcd_cmd_bits = 8,
         .lcd_param_bits = 8,
-        .trans_queue_depth = 5,
+        /* lcd_draw_img reuses its small streaming buffer immediately; keep
+           one transaction in flight so the buffer is not overwritten while
+           SPI DMA is still reading it. */
+        .trans_queue_depth = 1,
     };
     esp_lcd_panel_io_handle_t io_handle = NULL;
     if (esp_lcd_new_panel_io_spi(SPI2_HOST, &io_config, &io_handle) != ESP_OK) {
@@ -86,6 +93,7 @@ bool lcd_init(void)
     esp_lcd_panel_disp_on_off(s_panel, true);
 
     lcd_backlight(true);
+    s_lcd_ready = true;
     ESP_LOGI(TAG, "backlight on (BL=%d, invert=%d)", LCD_BL_GPIO, LCD_BL_INVERT);
     return true;
 }

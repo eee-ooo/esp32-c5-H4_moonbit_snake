@@ -24,13 +24,14 @@
   ],
   "idf.currentSetup": "D:\\eeeooo\\esp32\\v5.5.5\\esp-idf",
   "idf.customExtraVars": {
-    "IDF_TARGET": "esp32c5"
+    "IDF_TARGET": "esp32c5",
+    "OPENOCD_USB_ADAPTER_LOCATION": "2-1.3"
   },
   "clangd.path": "C:\\Espressif\\tools\\esp-clang\\esp-19.1.2_20250312\\esp-clang\\bin\\clangd.exe",
   "clangd.arguments": [
     "--background-index",
     "--query-driver=**",
-    "--compile-commands-dir=${workspaceFolder}/build"
+    "--compile-commands-dir=d:\\all_daima\\esp32_all\\test1\\led_01\\build"
   ],
   "idf.flashType": "UART",
   "idf.portWin": "COM6"
