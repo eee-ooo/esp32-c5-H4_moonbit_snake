@@ -44,10 +44,20 @@
       "Bash(ls \"D:/all_daima/esp32_all/moonbit/moonbit-wasm4-esp32-main\" 2>/dev/null | head -25; echo ===; head -12 \"D:/all_daima/esp32_all/moonbit/moonbit-wasm4-esp32-main/README.md\" 2>/dev/null)",
       "Read(//d/all_daima/esp32_all/moonbit/moonbit-wasm4-esp32-main/**)",
       "WebFetch(domain:www.moonbitlang.cn)",
-      "WebFetch(domain:moonbitlang.cn)"
+      "WebFetch(domain:moonbitlang.cn)",
+      "Bash(ls \"D:/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main\" 2>/dev/null | head -20; echo ===; grep -rn \"esp_lcd\\\\|ST7789\\\\|GC9A01\\\\|ILI9341\" \"D:/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main\" --include=*.c --include=*.h --include=*.txt --include=*.yml 2>/dev/null | grep -iv \"\\\\.map\" | head -10; echo ===; grep -rn \"gpio_num_t\\\\|GPIO_NUM_[0-9]\" \"D:/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main\" --include=*.c --include=*.h 2>/dev/null | grep -i \"lcd\\\\|screen\\\\|spi\" | head -12)",
+      "Read(//d/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main/**)",
+      "Read(//d/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main/main/boards/**)",
+      "Read(//d/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main/main/**)",
+      "Read(//d/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main/partitions/**)",
+      "Read(//d/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main/main/boards/doit-ai-c5-kit-lcd/**)",
+      "Bash(sed -n '90,150p' \"D:/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main/main/boards/doit-ai-c5-kit-lcd/doit-ai-c5-kit-lcd.cc\")",
+      "Bash(grep -n \"esp_lcd_panel_st7789\\\\|esp_lcd_new_panel\" \"D:/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main/main/boards/doit-ai-c5-kit-lcd/esp_lcd_panel_st7789_fix.h\" | head -12; echo ===; grep -n \"esp_lcd_new_panel_st7789\" \"D:/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main/main/boards/doit-ai-c5-kit-lcd/esp_lcd_panel_st7789_fix.c\" | head -3)",
+      "Bash(cp \"D:/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main/main/boards/doit-ai-c5-kit-lcd/esp_lcd_panel_st7789_fix.c\" \"D:/all_daima/esp32_all/xiaozi_c5/DOIT_AI-main/main/boards/doit-ai-c5-kit-lcd/esp_lcd_panel_st7789_fix.h\" \"d:/all_daima/esp32_all/test1/led_01/components/BSP/LCD/\" && ls \"d:/all_daima/esp32_all/test1/led_01/components/BSP/LCD/\")"
     ],
     "additionalDirectories": [
-      "D:\\all_daima\\esp32_all\\test1"
+      "D:\\all_daima\\esp32_all\\test1",
+      "D:\\all_daima\\esp32_all\\xiaozi_c5\\DOIT_AI-main\\main\\boards\\doit-ai-c5-kit-lcd"
     ]
   }
 }

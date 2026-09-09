@@ -5,8 +5,10 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "led.h"
+#include "lcd.h"
 #include "wifi_app.h"
 #include "http_app.h"
+#include <stdlib.h>
 
 static const char *TAG = "cli";
 uint16_t test1=0;
@@ -98,6 +100,65 @@ static int cmd_fetch(int argc, char **argv)
     return 0;
 }
 
+static int cmd_lcd(int argc, char **argv)
+{
+    (void)argc;
+    (void)argv;
+    if (!lcd_init()) {
+        printf("LCD 初始化失败\n");
+        return -1;
+    }
+
+    lcd_clear(0x0000);   /* 先擦全屏:不给"旧画面留影"机会 */
+
+    /* 编号色条卡:上白条/下蓝条(定上下),中间竖条纹 红绿蓝白循环(定左右顺序) */
+    static const uint16_t stripe[4] = { 0xF800, 0x07E0, 0x001F, 0xFFFF };
+    uint16_t *img = malloc(160 * 160 * 2);
+    if (!img) {
+        printf("内存不足\n");
+        return -1;
+    }
+    /* 编号色块阵 4x4(每格 38px+2px 黑边):16 色各异,报位置=唯一解码 */
+    static const uint16_t cells[16] = {
+        0x0000, 0xF800, 0x07E0, 0x001F,   /* 黑 红 绿 蓝 */
+        0xFFFF, 0xFFE0, 0x07FF, 0xF81F,   /* 白 黄 青 紫 */
+        0x8000, 0x0400, 0x0010, 0x8410,   /* 暗红 暗绿 暗蓝 灰 */
+        0xFBE0, 0x07E6, 0x86FF, 0xFBE7,   /* 橙 淡绿 淡紫 淡棕 */
+    };
+    for (int y = 0; y < 160; y++) {
+        for (int x = 0; x < 160; x++) {
+            int cx = x / 40, cy = y / 40;                 /* 所在格 */
+            uint16_t c = cells[cy * 4 + cx];
+            if ((x % 40) < 2 || (y % 40) < 2) c = 0xFFFF; /* 白色格线 */
+            img[y * 160 + x] = c;
+        }
+    }
+
+    /* 面板实测会转 90°:送图前先旋转回去。LCD_ROT 换个方向试试:
+     * 1 = 顺时针转 90°(逆补),改 0 = 逆时针 90°(若反向) */
+#define LCD_ROT  1
+    uint16_t *rot = malloc(160 * 160 * 2);
+    if (!rot) {
+        free(img);
+        printf("内存不足\n");
+        return -1;
+    }
+    for (int y = 0; y < 160; y++) {
+        for (int x = 0; x < 160; x++) {
+#if LCD_ROT
+            rot[x * 160 + (159 - y)] = img[y * 160 + x];   /* 顺时针 90° 逆映射 */
+#else
+            rot[(159 - x) * 160 + y] = img[y * 160 + x];   /* 逆时针 90° */
+#endif
+        }
+    }
+    lcd_draw_img(68, 40, 160, 160, rot);   /* 居中贴到 296x240 */
+    free(rot);
+    free(img);
+    printf("LCD 测试卡完成: 已做 90° 校正上屏\n");
+    return 0;
+}
+
 static int cmd_time(int argc, char **argv)
 {
     (void)argc;
@@ -158,6 +219,7 @@ void cli_init(void)
         { .command = "join",    .help = "join <ssid> <password>", .func = cmd_join },
         { .command = "fetch",   .help = "fetch <url> (http get)", .func = cmd_fetch },
         { .command = "time",    .help = "world time from internet", .func = cmd_time },
+        { .command = "lcd",     .help = "show 160x160 gradient on LCD", .func = cmd_lcd },
     };
     for (int i = 0; i < sizeof(cmd_tab) / sizeof(cmd_tab[0]); i++) {
         ESP_ERROR_CHECK(esp_console_cmd_register(&cmd_tab[i]));
