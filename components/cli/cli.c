@@ -168,8 +168,8 @@ static int cmd_game(int argc, char **argv)
         printf("LCD 未就绪\n");
         return -1;
     }
-    game_app_start();           /* 游戏任务接管;屏幕看效果,按键阶段 2 */
-    printf("wasm4 启动中(屏幕看效果,按键阶段 2)\n");
+    game_app_start();
+    printf("wasm4 game is running independently of the console\n");
     return 0;
 }
 

@@ -11,6 +11,7 @@
 #include "pthread.h"
 
 static const char *TAG = "game";
+static bool s_game_running;
 
 extern wasm_module_t wasm_module;
 extern wasm_module_inst_t wasm_module_inst;
@@ -59,16 +60,6 @@ static uint16_t s_fb[2][160 * W4_BLIT_ROWS];
 /* 合成:2bpp 索引帧 + 4 色 palette → RGB565 缓冲 → 整帧贴屏(居中 68,40) */
 void w4_windowComposite(const uint32_t *palette, const uint8_t *framebuffer)
 {
-    static bool frame_logged;
-    if (!frame_logged) {
-        int nonzero = 0;
-        for (int i = 0; i < (160 * 160 >> 2); i++)
-            nonzero += framebuffer[i] != 0;
-        ESP_LOGI(TAG, "WASM frame: nonzero=%d palette=%08x,%08x,%08x,%08x",
-                 nonzero, (unsigned)palette[0], (unsigned)palette[1],
-                 (unsigned)palette[2], (unsigned)palette[3]);
-        frame_logged = true;
-    }
     for (int y = 0; y < 160; y += W4_BLIT_ROWS) {
         uint16_t *block = s_fb[(y / W4_BLIT_ROWS) & 1];
         int rows = 160 - y;
@@ -89,9 +80,14 @@ void w4_windowComposite(const uint32_t *palette, const uint8_t *framebuffer)
     }
 }
 
-/* 游戏启动(由 cli 的 game 命令调用):初始化 WAMR → 建游戏任务 */
+/* Initialize WAMR and start the independent game thread. */
 void game_app_start(void)
 {
+    if (s_game_running) {
+        ESP_LOGI(TAG, "game already running");
+        return;
+    }
+
     ESP_LOGI(TAG, "booting wasm4...");
     pthread_t init_thread;
     pthread_attr_t attr;
@@ -118,8 +114,11 @@ void game_app_start(void)
     pthread_attr_setstacksize(&attr, 8 * 1024);
     rc = pthread_create(&init_thread, &attr, w4_windowBoot_pthread, NULL);
     pthread_attr_destroy(&attr);
-    if (rc != 0)
+    if (rc != 0) {
         ESP_LOGE(TAG, "WASM game thread create failed: %d", rc);
+        return;
+    }
+    s_game_running = true;
 }
 
 static void *w4_windowBoot_pthread(void *arg)

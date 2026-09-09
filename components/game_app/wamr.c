@@ -1,6 +1,5 @@
 #include "wamr.h"
 #include "runtime.h"
-#include <stddef.h>
 
 void wrap_w4_runtimeBlit(wasm_exec_env_t exec_env, const uint8_t* sprite, int x, int y, int width, int height, int flags) {
     // printf("Call wrap_w4_runtimeBlit\n");
@@ -27,12 +26,6 @@ void wrap_w4_runtimeOval(wasm_exec_env_t exec_env, int x, int y, int width, int 
     w4_runtimeOval(x, y, width, height);
 }
 void wrap_w4_runtimeRect(wasm_exec_env_t exec_env, int x, int y, int width, int height) {
-    static bool logged;
-    if (!logged) {
-        printf("WASM rect native call: x=%d y=%d w=%d h=%d\n",
-               x, y, width, height);
-        logged = true;
-    }
     w4_runtimeRect(x, y, width, height);
 }
 void wrap_w4_runtimeText(wasm_exec_env_t exec_env, const uint8_t* str, int x, int y) {
@@ -181,8 +174,6 @@ static NativeSymbol native_symbols[] =
 
 extern unsigned char __game_card[];
 extern unsigned int __game_card_len;
-extern void *wamr_prepare_linear_memory(size_t size);
-extern void wamr_cancel_prepared_linear_memory(void);
 
 wasm_module_t wasm_module = NULL;
 wasm_module_inst_t wasm_module_inst = NULL;
@@ -196,20 +187,12 @@ extern void run_wasm4(void *pvParameters);
 void load_tinypong() {
     char error_buf[128];
 
-    printf("WAMR instantiate config: stack=8192 heap=0\n");
-    if (!wamr_prepare_linear_memory(64 * 1024)) {
-        printf("Failed to reserve linear memory before load\n");
-        return;
-    }
-
     wasm_module = wasm_runtime_load(__game_card, __game_card_len, error_buf, sizeof(error_buf));
     if (!wasm_module) {
         printf("Failed to load wasm module: %s\n", error_buf);
-        wamr_cancel_prepared_linear_memory();
         return;
     }
 
-    printf("Instantiate the wasm module\n");
     /* The card starts with one 64-KiB WASM page.  WAMR rounds any non-zero
        host heap up to another full WASM page, so a 32-KiB heap would request
        128 KiB at once and exceed the ESP32-C5's largest free block (131072
@@ -218,7 +201,6 @@ void load_tinypong() {
     wasm_module_inst = wasm_runtime_instantiate(wasm_module, 8 * 1024, 0, error_buf, sizeof(error_buf));
     if (!wasm_module_inst) {
         printf("Failed to instantiate wasm module: %s\n", error_buf);
-        wamr_cancel_prepared_linear_memory();
         wasm_runtime_unload(wasm_module);
         return;
     }
@@ -288,24 +270,17 @@ void* wamr_get_phy_memory() {
 
 void w4_wasmCallStart () {
     if (start) {
-        printf("Call start %p\n", start);
         wasm_runtime_call_wasm(exec_env, start, 0, NULL);
     }
 }
 
 void w4_wasmCallUpdate () {
-    static bool update_logged = false;
     update = wasm_runtime_lookup_function(wasm_module_inst, "update");
     if (!exec_env2) {
         exec_env2 = wasm_runtime_create_exec_env(wasm_module_inst, 10 * 1024);
     }
-    if (!update_logged) {
-        printf("Call update %p\n", update);
-        update_logged = true;
-    }
     if (!wasm_runtime_call_wasm(exec_env2, update, 0, NULL)) {
         const char *exception = wasm_runtime_get_exception(wasm_module_inst);
-        printf("WASM update failed: %s\n",
-               exception ? exception : "unknown exception");
+        printf("WASM update failed: %s\n", exception ? exception : "unknown exception");
     }
 }
