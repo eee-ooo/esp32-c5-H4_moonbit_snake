@@ -4,6 +4,10 @@
 #
 # 适用硬件:MZ56-ESP32-C5(4 MB Flash、无外挂 PSRAM、单 Type-C 直连芯片)
 
+# 目标芯片:esp32c5
+# (不写这项时,ESP-IDF 默认按 esp32 处理 → 会去找 xtensa 工具链 → 配置直接失败)
+CONFIG_IDF_TARGET="esp32c5"
+
 # Flash 容量:4 MB(否则默认 2 MB,自定义分区表装不下)
 CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
 
