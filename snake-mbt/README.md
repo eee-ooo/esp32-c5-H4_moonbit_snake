@@ -52,3 +52,14 @@ snake-mbt/*.mbt ──moon build──▶ snake.wasm ──xxd──▶ componen
 ## 许可
 
 本目录源码与 `LICENSE` 均来自上游 MoonBit WASM-4 示例工程(保持原样)。
+
+源文件头为**双版权署名**:
+
+```
+//  Copyright 2024 Bruno Garcia
+//  Copyright 2024 International Digital Economy Academy
+```
+
+含义:贪吃蛇的玩法与示例代码由 **WASM-4 的作者 Bruno Garcia** 创作,
+**MoonBit 团队**将其改写为 MoonBit 版本(并声明为 Apache-2.0)。
+完整的第三方许可清单见仓库根目录 [`THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md)。
