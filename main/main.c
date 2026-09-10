@@ -17,8 +17,12 @@ void app_main(void)
     ESP_LOGI(TAG, "app start: BSP(LED) + CLI(console)");
 
     /* The device keeps the game alive independently of the USB console. */
-    if (lcd_init())
+    if (lcd_init()) {
+        /* Reset leaves the panel GRAM contents undefined. Clear the full
+           physical window before the 160x160 WASM viewport is drawn. */
+        lcd_clear(0x0000);
         game_app_start();
+    }
     else
         ESP_LOGE(TAG, "LCD initialization failed; game not started");
 

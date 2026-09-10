@@ -89,6 +89,9 @@ void game_app_start(void)
     }
 
     ESP_LOGI(TAG, "booting wasm4...");
+
+    init_button();   /* 配置按键 GPIO:必须在游戏线程开始读取之前完成 */
+
     pthread_t init_thread;
     pthread_attr_t attr;
     int rc;

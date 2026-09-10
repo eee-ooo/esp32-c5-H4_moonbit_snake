@@ -103,14 +103,23 @@ void lcd_clear(uint16_t color)
     if (!s_panel) {
         return;
     }
-    /* 一行缓冲,逐行铺满 */
-    static uint16_t row[LCD_WIDTH];
-    for (int i = 0; i < LCD_WIDTH; i++) {
+    /* With MV (swap_xy) enabled, the 24-pixel x gap is visible as an
+       uncovered strip on the other axis. Clear the raw 320x240 GRAM window
+       with no software gap, then restore the game's 24-pixel viewport gap. */
+    const int clear_width = 320;
+    const int clear_height = 240;
+    static uint16_t row[320];
+    esp_lcd_panel_set_gap(s_panel, 0, 0);
+    for (int i = 0; i < clear_width; i++) {
         row[i] = color;
     }
-    for (int y = 0; y < LCD_HEIGHT; y++) {
-        esp_lcd_panel_draw_bitmap(s_panel, 0, y, LCD_WIDTH, y + 1, row);
+    for (int y = 0; y < clear_height; y++) {
+        esp_lcd_panel_draw_bitmap(s_panel, 0, y, clear_width, y + 1, row);
+        /* The row buffer is reused on the next iteration. Give the SPI DMA
+           transaction time to finish before overwriting it. */
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
+    esp_lcd_panel_set_gap(s_panel, 24, 0);
 }
 
 void lcd_draw_img(int x, int y, int w, int h, const uint16_t *img)

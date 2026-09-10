@@ -35,7 +35,8 @@ static int cmd_on(int argc, char **argv)
     (void)argv;
     led_set(true);
     led_state_save(true);
-    ESP_LOGI(TAG, "IO1/IO2 -> HIGH");
+    /* 回读真实电平:避免"日志说成功、引脚其实没被控制"(外设占用等) */
+    ESP_LOGI(TAG, "GPIO%d -> HIGH (readback=%d)", LED_GPIO, (int)led_get());
 
     return 0;
 }
@@ -46,8 +47,27 @@ static int cmd_off(int argc, char **argv)
     (void)argv;
     led_set(false);
     led_state_save(false);
-    ESP_LOGI(TAG, "IO1/IO2 -> LOW");
+    ESP_LOGI(TAG, "GPIO%d -> LOW (readback=%d)", LED_GPIO, (int)led_get());
 
+    return 0;
+}
+
+/* 排查空闲引脚:pin <gpio> <0|1>
+ * 把指定引脚配成输出并设置电平,然后回读实测值;LCD/电源保持/BOOT 脚被禁止。 */
+static int cmd_pin(int argc, char **argv)
+{
+    if (argc < 3) {
+        printf("usage: pin <gpio> <0|1>   (probe a pin; LCD/power/BOOT pins are blocked)\n");
+        return -1;
+    }
+    int pin = atoi(argv[1]);
+    int lvl = atoi(argv[2]) ? 1 : 0;
+
+    if (!led_probe(pin, lvl)) {
+        printf("GPIO%d 不允许操作(被 LCD / 电源保持 / BOOT 占用,或超出范围)\n", pin);
+        return -1;
+    }
+    printf("GPIO%d -> %d, readback=%d\n", pin, lvl, (int)led_get_pin(pin));
     return 0;
 }
 
@@ -225,8 +245,9 @@ void cli_init(void)
 
     /* ---------- 登记命令 ---------- */
     static const esp_console_cmd_t cmd_tab[] = {
-        { .command = "on",      .help = "IO1/IO2 -> HIGH",    .func = cmd_on },
-        { .command = "off",     .help = "IO1/IO2 -> LOW",     .func = cmd_off },
+        { .command = "on",      .help = "LED GPIO -> HIGH",   .func = cmd_on },
+        { .command = "off",     .help = "LED GPIO -> LOW",    .func = cmd_off },
+        { .command = "pin",     .help = "pin <gpio> <0|1> (probe a pin)", .func = cmd_pin },
         { .command = "hello",   .help = "say hello",          .func = cmd_hello },
         { .command = "restart", .help = "reboot the device",  .func = cmd_restart },
         { .command = "scan",    .help = "wifi APs near by",   .func = cmd_scan },
