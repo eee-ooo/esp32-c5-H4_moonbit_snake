@@ -76,3 +76,6 @@ Desktop.ini
 *.workspace # General workspace files, can be from various tools
 *.suo       # Visual Studio Solution User Options
 *.sln.docstates # Visual Studio
+
+# 临时文件(报告导出/核对用,勿入库)
+_tmp_*
