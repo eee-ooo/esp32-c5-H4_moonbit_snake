@@ -21,3 +21,6 @@ CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
 
 # 本板无外挂 PSRAM:保持关闭,否则启动时初始化 PSRAM 失败会 abort
 CONFIG_SPIRAM=n
+
+# WAMR:关闭 WASI 支持(卡带不使用 WASI;WAMR 默认开启,关掉可省约 50 KB 固件)
+CONFIG_WAMR_ENABLE_LIBC_WASI=n
