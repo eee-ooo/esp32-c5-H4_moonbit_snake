@@ -79,3 +79,12 @@ Desktop.ini
 
 # 临时文件(报告导出/核对用,勿入库)
 _tmp_*
+
+# 私人/本机内容(不随仓库分发)
+pitfalls.md
+api_card.md
+.claude/
+docs/
+.vscode/
+.clangd
+.devcontainer/
