@@ -1,0 +1,19 @@
+# 板级默认配置(随仓库走)
+# ESP-IDF 在首次构建(生成 sdkconfig)时自动应用本文件,
+# 保证任何人 clone 后都能直接编译出可用的固件。
+#
+# 适用硬件:MZ56-ESP32-C5(4 MB Flash、无外挂 PSRAM、单 Type-C 直连芯片)
+
+# Flash 容量:4 MB(否则默认 2 MB,自定义分区表装不下)
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+
+# 分区表:使用本仓库的 partitions.csv(app 3 MB)
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# 主控制台:USB-Serial-JTAG(板载 Type-C 直连芯片;
+# cli 组件依赖该开关,否则 esp_console_new_repl_usb_serial_jtag 不会被编译)
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+
+# 本板无外挂 PSRAM:保持关闭,否则启动时初始化 PSRAM 失败会 abort
+CONFIG_SPIRAM=n
